@@ -44,6 +44,8 @@ export class Database implements OnModuleInit, OnModuleDestroy {
 
     return numConnections;
   }
+
+  // kiểm tra memory có bị overload hay không?
   checkOverLoad() {
     setInterval(async () => {
       const numConnection = await this.countConnections();
