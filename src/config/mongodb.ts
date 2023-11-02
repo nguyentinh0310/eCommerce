@@ -4,7 +4,7 @@ import { env } from './environment';
 import * as os from 'os';
 
 @Injectable()
-export class Database implements OnModuleInit, OnModuleDestroy {
+export class MongoDbDriverModule implements OnModuleInit, OnModuleDestroy {
   private mongoClientInstance: MongoClient;
   private db: Db;
 
