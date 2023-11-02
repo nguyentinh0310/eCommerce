@@ -4,14 +4,14 @@ import helmet from 'helmet';
 import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { env } from './config/environment';
-import { Database } from './config/mongodb';
+import { MongoDbDriverModule } from './config/mongodb';
 import * as exitHook from 'async-exit-hook';
 
 async function bootstrap() {
   const hostname = 'localhost' || env.APP_HOST;
   const port = env.APP_PORT;
   const app = await NestFactory.create(AppModule);
-  const db = app.get(Database);
+  const db = app.get(MongoDbDriverModule);
 
   // morgan middleware để ghi log
   app.use(morgan('dev'));
