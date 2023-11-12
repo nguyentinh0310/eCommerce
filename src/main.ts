@@ -1,17 +1,15 @@
 import { NestFactory } from '@nestjs/core';
+import * as exitHook from 'async-exit-hook';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { env } from './config/environment';
-import { MongoDbDriverModule } from './config/mongodb';
-import * as exitHook from 'async-exit-hook';
 
 async function bootstrap() {
   const hostname = 'localhost' || env.APP_HOST;
   const port = env.APP_PORT;
   const app = await NestFactory.create(AppModule);
-  const db = app.get(MongoDbDriverModule);
 
   // morgan middleware để ghi log
   app.use(morgan('dev'));
@@ -28,7 +26,6 @@ async function bootstrap() {
   // Thực hiện tác vụ cleanup trước khi dừng server
   exitHook(() => {
     console.log('Disconnection from MongoDB Cloud Atlas');
-    db.onModuleDestroy();
   });
 }
 
