@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
     ConfigModule.forRoot(),
     MongooseModule.forRoot(env.MONGODB_URI, {
       // options
+      dbName: env.DATABASE_NAME
     }),
     UsersModule,
     AuthModule
