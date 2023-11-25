@@ -24,6 +24,15 @@ export class User {
 
   @Prop({ default: [], type: Array })
   roles: [];
+
+  constructor(email:string, password:string, name: string, status: string, verify: boolean, roles: []){
+    this.email= email
+    this.password = password
+    this.name = name
+    this.status = status
+    this.verify = verify
+    this.roles = roles
+  }
 }
 
 const UserSchema = SchemaFactory.createForClass(User);

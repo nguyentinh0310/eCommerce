@@ -3,13 +3,14 @@ import { Model, FilterQuery, QueryOptions, Document, PopulateOptions } from 'mon
 export class BaseRepository<T extends Document> {
   constructor(private readonly model: Model<T>) {}
 
-  async create(doc): Promise<any> {
+  async create(doc: any): Promise<any> {
     const createdEntity = new this.model(doc);
     return await createdEntity.save();
   }
 
-  async findById(id: string, option?: QueryOptions): Promise<T> {
-    return this.model.findById(id, option);
+  async findById(id: string, option?: QueryOptions): Promise<T | null> {
+    const result = await this.model.findById(id, option);
+    return result !== null ? (result as T) : null;
   }
 
   async findByCondition(
@@ -26,7 +27,7 @@ export class BaseRepository<T extends Document> {
   }
 
   async getByCondition(
-    filter,
+    filter: any,
     field?: any | null,
     option?: any | null,
     populate?: any | null,
@@ -54,11 +55,11 @@ export class BaseRepository<T extends Document> {
     return this.model.deleteMany({ _id: { $in: id } } as FilterQuery<T>);
   }
 
-  async deleteByCondition(filter) {
+  async deleteByCondition(filter: any) {
     return this.model.deleteMany(filter);
   }
 
-  async findByConditionAndUpdate(filter, update) {
+  async findByConditionAndUpdate(filter: any, update: any) {
     return this.model.findOneAndUpdate(filter as FilterQuery<T>, update);
   }
 
@@ -67,7 +68,7 @@ export class BaseRepository<T extends Document> {
   }
   
 
-  async findByIdAndUpdate(id, update) {
+  async findByIdAndUpdate(id: any, update: any) {
     return this.model.findByIdAndUpdate(id, update);
   }
 }
