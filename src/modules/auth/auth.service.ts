@@ -17,7 +17,6 @@ export class AuthService {
         ...registerDto,
         password: hashedPassword
       })
-      createdUser.password = undefined;
       return createdUser;
     } catch (error) {
       throw new HttpException(

@@ -42,7 +42,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.listen(port, hostname, () => {
+  app.listen(port as string, hostname , () => {
     // eslint-disable-next-line no-console
     console.log(`Server is running at http://${hostname}:${port}/`);
   });
