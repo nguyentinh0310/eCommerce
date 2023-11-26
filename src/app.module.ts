@@ -4,8 +4,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { env } from './config/environment';
-import { UsersModule } from './modules/users/users.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { KeyTokenModule } from '@modules/key-token/key-token.module';
+import { UsersModule } from '@modules/users/users.module';
+import { AuthModule } from '@modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
       dbName: env.DATABASE_NAME
     }),
     UsersModule,
+    KeyTokenModule,
     AuthModule
   ],
   controllers: [AppController],

@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import { env } from './config/environment';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ErrorFilter } from '@filters/http-exception.filter';
 
 async function bootstrap() {
   const hostname = 'localhost' || env.APP_HOST;
@@ -20,8 +21,13 @@ async function bootstrap() {
   app.use(helmet());
   // compression middleware để nén gửi dữ liệu
   app.use(compression());
+  
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
+ // Sử dụng ValidationPipe để xử lý validation trên toàn bộ ứng dụng
+ app.useGlobalPipes(new ValidationPipe());
+
+ // Sử dụng ErrorFilter để xử lý lỗi trên toàn bộ ứng dụng
+ app.useGlobalFilters(new ErrorFilter());
 
   const config = new DocumentBuilder()
     .setTitle('ECommerce API')
