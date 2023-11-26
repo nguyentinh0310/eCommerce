@@ -1,13 +1,24 @@
 import 'dotenv/config';
+import { cleanEnv, str } from 'envalid';
+interface EnvType {
+  MONGODB_URI: string;
+  DATABASE_NAME: string;
+  APP_HOST: string;
+  APP_PORT: string;
 
-export const env:any = {
-  MONGODB_URI: process.env.MONGODB_URI,
-  DATABASE_NAME: process.env.DATABASE_NAME,
-  APP_HOST: process.env.APP_HOST,
-  APP_PORT: process.env.APP_PORT,
+  SECRETKEY: string;
+  EXPIRESIN: string;
+  SECRETKEY_REFRESH: string;
+  EXPIRESIN_REFRESH: string;
+}
 
-  SECRETKEY: process.env.SECRETKEY,
-  EXPIRESIN: process.env.EXPIRESIN,
-  SECRETKEY_REFRESH: process.env.SECRETKEY_REFRESH,
-  EXPIRESIN_REFRESH: process.env.EXPIRESIN_REFRESH,
-};
+export const env: EnvType = cleanEnv(process.env, {
+  MONGODB_URI: str(),
+  DATABASE_NAME: str(),
+  APP_HOST: str(),
+  APP_PORT: str(),
+  SECRETKEY: str(),
+  EXPIRESIN: str(),
+  SECRETKEY_REFRESH: str(),
+  EXPIRESIN_REFRESH: str(),
+});
