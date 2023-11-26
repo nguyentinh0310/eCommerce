@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema({ timestamps: true })
+@Schema({ collection: 'users' })
 export class User {
   @Prop({ unique: true })
   email: string;
@@ -25,13 +25,21 @@ export class User {
   @Prop({ default: [], type: Array })
   roles: [];
 
-  constructor(email:string, password:string, name: string, status: string, verify: boolean, roles: []){
+  @Prop({ default: Date.now })
+  createdAt: number;
+
+  @Prop({ default: Date.now, set: (value: any) => value || Date.now() })
+  updatedAt: number;
+
+  constructor(email:string, password:string, name: string, status: string, verify: boolean, roles: [], createdAt: number, updatedAt: number,){
     this.email= email
     this.password = password
     this.name = name
     this.status = status
     this.verify = verify
     this.roles = roles
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 }
 
