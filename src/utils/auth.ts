@@ -7,8 +7,15 @@ export const createTokenKeyPair = async (
   publicKey: string,
   privateKey: string,
 ) => {
-  const accessToken = jwtService.sign(payload, { expiresIn: env.EXPIRESIN, privateKey });
-  const refreshToken = jwtService.sign(payload, { expiresIn: env.EXPIRESIN_REFRESH, privateKey });
+  const accessToken = jwtService.sign(payload, {
+    expiresIn: env.EXPIRESIN,
+    privateKey,
+  });
+  const refreshToken = jwtService.sign(payload, {
+    secret: env.SECRETKEY_REFRESH,
+    expiresIn: env.EXPIRESIN_REFRESH,
+    privateKey,
+  });
 
   try {
     const decodedAccessToken = jwtService.verify(accessToken, { publicKey });
