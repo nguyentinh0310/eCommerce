@@ -7,11 +7,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KeyTokenModule } from '@modules/key-token/key-token.module';
 import { ApiKeyModule } from '@modules/api-key/api-key.module';
+import { JwtStrategy } from '@middlewares/jwt.strategy';
 
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.register({
+      defaultStrategy: 'jwt',
+      property: 'user',
+      session: false,
+    }),
     KeyTokenModule,
     ApiKeyModule,
     JwtModule.registerAsync({
@@ -26,6 +31,7 @@ import { ApiKeyModule } from '@modules/api-key/api-key.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
+  exports: [PassportModule],
 })
 export class AuthModule {}
