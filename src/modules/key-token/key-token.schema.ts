@@ -15,7 +15,10 @@ export class KeyToken {
   privateKey: string;
 
   @Prop({ type: [String], default: [] })
-  refreshToken: string[];
+  refreshTokenUsed: string[];
+
+  @Prop({ required: true })
+  refreshToken: string;
 
   @Prop({ default: Date.now })
   createdAt: number;
@@ -27,13 +30,15 @@ export class KeyToken {
     user: MongooseSchema.Types.ObjectId,
     publicKey: string,
     privateKey: string,
-    refreshToken: string[],
+    refreshTokenUsed: string[],
+    refreshToken: string,
     createdAt: number,
     updatedAt: number,
   ) {
     this.user = user;
     this.publicKey = publicKey;
     this.privateKey = privateKey;
+    this.refreshTokenUsed = refreshTokenUsed;
     this.refreshToken = refreshToken;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
