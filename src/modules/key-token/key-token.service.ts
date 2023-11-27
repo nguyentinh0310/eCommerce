@@ -13,9 +13,9 @@ export class KeyTokenService {
   constructor(private readonly keyTokenRepository: KeyTokenRepository) {}
 
   async createKeyToken(keyToken: IKeyToken) {
-   try {
-    const { userId, publicKey, privateKey, refreshToken } = keyToken;
-    /**
+    try {
+      const { userId, publicKey, privateKey, refreshToken } = keyToken;
+      /**
       // C1: Lưu thẳng token vào db
       const tokens = await this.keyTokenRepository.create({
         user: userId,
@@ -23,19 +23,27 @@ export class KeyTokenService {
         privateKey
       });
     */
-    // C2
-    const tokens = await this.keyTokenRepository.findOneAndUpdate(
-      { user: userId },
-      {
-        publicKey,
-        privateKey,
-        refreshToken,
-        refreshTokenUsed: [],
-      },
-    );
-    return tokens ? tokens.publicKey : null;
-   } catch (error) {
-    throw error
-   }
+      // C2
+      const tokens = await this.keyTokenRepository.findOneAndUpdate(
+        { user: userId },
+        {
+          publicKey,
+          privateKey,
+          refreshToken,
+          refreshTokenUsed: [],
+        },
+      );
+      return tokens ? tokens.publicKey : null;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findByUserId(userId: ObjectId) {
+    return await this.keyTokenRepository.findByCondition({ user: userId });
+  }
+
+  async removeKeyById(id: any) {
+    return await this.keyTokenRepository.deleteOne(id)
   }
 }

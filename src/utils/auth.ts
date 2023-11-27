@@ -1,23 +1,21 @@
+import { JwtService } from '@nestjs/jwt';
 import { env } from '@config/environment';
-import * as jwt from 'jsonwebtoken';
 
+export const createTokenKeyPair = async (
+  payload: any,
+  jwtService: JwtService,
+  publicKey: string,
+  privateKey: string,
+) => {
+  const accessToken = jwtService.sign(payload, { expiresIn: env.EXPIRESIN, privateKey });
+  const refreshToken = jwtService.sign(payload, { expiresIn: env.EXPIRESIN_REFRESH, privateKey });
 
-export const createTokenKeyPair = async (payload: any, publicKey: string, privateKey: string) => {
-  const accessToken = await jwt.sign(payload, publicKey, {
-    expiresIn: env.EXPIRESIN,
-  });
-
-  const refreshToken = await jwt.sign(payload, publicKey, {
-    expiresIn: env.EXPIRESIN_REFRESH,
-  });
-
-  jwt.verify(accessToken, publicKey, (err: any, decode) => {
-    if (err) {
-      console.error('error verify: ', err);
-    } else {
-      console.log('decode verify: ', decode);
-    }
-  });
+  try {
+    const decodedAccessToken = jwtService.verify(accessToken, { publicKey });
+    console.log('decode verify: ', decodedAccessToken);
+  } catch (err) {
+    console.error('error verify: ', err);
+  }
 
   return { accessToken, refreshToken };
 };

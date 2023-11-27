@@ -69,6 +69,7 @@ export class AuthService {
         // tạo token pair
         const tokens = await createTokenKeyPair(
           { userId: newShop._id, email },
+          this.jwtService,
           publicKey,
           privateKey,
         );
@@ -115,6 +116,7 @@ export class AuthService {
       // generate token
       const tokens = await createTokenKeyPair(
         { userId: foundShop._id, email },
+        this.jwtService,
         publicKey,
         privateKey,
       );
@@ -141,6 +143,25 @@ export class AuthService {
       };
       // get data return login
     } catch (error) {
+      throw error;
+    }
+  }
+
+  async logout(userId: ObjectId) {
+    try {
+      const keyStore = await this.keyTokenService.findByUserId(userId);
+      if (!keyStore)
+        throw new HttpException('Not found keyStore', HttpStatus.NOT_FOUND);
+
+      const delKey = await this.keyTokenService.removeKeyById(keyStore._id);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Logout successfully!',
+        meta: delKey,
+      };
+    } catch (error) {
+      console.error(error);
       throw error;
     }
   }
