@@ -8,6 +8,7 @@ import { Role } from '@enums/role.enum';
 import { KeyTokenService } from '@modules/key-token/key-token.service';
 import { createTokenKeyPair } from '@utils/auth';
 import { getInfoData } from '@utils/common';
+import { ObjectId } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -90,6 +91,18 @@ export class AuthService {
       };
     } catch (error) {
       throw error;
+    }
+  }
+
+  async validateUser(userId: ObjectId) {
+    try {
+      const user = await this.userService.getByUserId(userId)
+      if (!user) {
+        throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+      }
+      return user;
+    } catch (error) {
+      throw error
     }
   }
 }

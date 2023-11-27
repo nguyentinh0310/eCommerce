@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ObjectId } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './users.repository';
-import { User, UserDocument } from './users.schema';
+import { UserDocument } from './users.schema';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,7 @@ export class UsersService {
     return await this.userRepository.findByCondition({ email });
   }
 
-  async getByUserId(userId: any) {
+  async getByUserId(userId: ObjectId) {
     const user = await this.userRepository.findByCondition({ _id: userId });
     if (!user)
       throw new HttpException('User does not found', HttpStatus.BAD_REQUEST);
@@ -27,7 +28,7 @@ export class UsersService {
     return await this.userRepository.create(userDto);
   }
 
-  async update(userId: any, userData: UpdateUserDto) {
+  async update(userId: ObjectId, userData: UpdateUserDto) {
     const user = await this.getByUserId(userId)
     if (!user) {
       throw new HttpException('User does not found', HttpStatus.BAD_REQUEST);
@@ -35,7 +36,7 @@ export class UsersService {
     return await this.userRepository.findByIdAndUpdate(userId, userData)
   }
 
-  async remove(userId: any): Promise<any> {
+  async remove(userId: ObjectId): Promise<any> {
     const user = await this.getByUserId(userId);
     if (user.id === userId) {
       throw new HttpException(
