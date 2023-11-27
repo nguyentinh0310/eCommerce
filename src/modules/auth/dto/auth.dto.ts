@@ -25,9 +25,10 @@ export class RegisterDto {
 }
 
 export class LoginDto {
-  constructor(email: string, password: string) {
+  constructor(email: string, password: string, refreshToken: string) {
     this.email = email;
     this.password = password;
+    this.refreshToken = refreshToken
   }
   @ApiProperty()
   @IsEmail()
@@ -37,4 +38,6 @@ export class LoginDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
+
+  refreshToken?: string 
 }
