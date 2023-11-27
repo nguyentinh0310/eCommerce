@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/auth.dto';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { Role } from '@enums/role.enum';
@@ -75,6 +75,7 @@ export class AuthService {
 
         return {
           statusCode: HttpStatus.CREATED,
+          message: 'Register successfully!',
           meta: {
             shop: getInfoData({
               fileds: ['_id', 'name', 'email'],
@@ -94,15 +95,65 @@ export class AuthService {
     }
   }
 
+  async login(loginDto: LoginDto) {
+    try {
+      const { email, password, refreshToken } = loginDto;
+      // kiểm tra email tồn tại
+      const foundShop = await this.userService.getByEmail(email);
+      if (!foundShop)
+        throw new HttpException('Email is not exist!', HttpStatus.BAD_REQUEST);
+      // match password
+      const isMatchPassword = await bcrypt.compare(
+        password,
+        foundShop.password,
+      );
+      if (!isMatchPassword)
+        throw new HttpException('Incorrect password!', HttpStatus.BAD_REQUEST);
+      // tạo accessToken và refreshToken lưu vào db
+      const publicKey = crypto.randomBytes(64).toString('hex');
+      const privateKey = crypto.randomBytes(64).toString('hex');
+      // generate token
+      const tokens = await createTokenKeyPair(
+        { userId: foundShop._id, email },
+        publicKey,
+        privateKey,
+      );
+
+      const keyStore = await this.keyTokenService.createKeyToken({
+        userId: foundShop._id,
+        publicKey,
+        privateKey,
+        refreshToken: tokens.refreshToken,
+      });
+      if (!keyStore)
+        throw new HttpException('keyStore error', HttpStatus.BAD_REQUEST);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Login successfully!',
+        meta: {
+          shop: getInfoData({
+            fileds: ['_id', 'name', 'email'],
+            object: foundShop,
+          }),
+          tokens,
+        },
+      };
+      // get data return login
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async validateUser(userId: ObjectId) {
     try {
-      const user = await this.userService.getByUserId(userId)
+      const user = await this.userService.getByUserId(userId);
       if (!user) {
         throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
       }
       return user;
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 }
