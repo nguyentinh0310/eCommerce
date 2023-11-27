@@ -13,12 +13,7 @@ export class BaseRepository<T extends Document> {
     return result !== null ? (result as T) : null;
   }
 
-  async findByCondition(
-    filter: FilterQuery<T>,
-    field?: any | null,
-    option?: QueryOptions | null,
-    populate?: PopulateOptions | null,
-  ): Promise<T | null> {
+  async findByCondition(filter: FilterQuery<T>, field?: any | null, option?: QueryOptions | null, populate?: PopulateOptions | null): Promise<T | null> {
     const query = this.model.findOne(filter, field, option);
     if (populate) {
       query.populate(populate);
@@ -55,12 +50,12 @@ export class BaseRepository<T extends Document> {
     return this.model.deleteMany({ _id: { $in: id } } as FilterQuery<T>);
   }
 
-  async deleteByCondition(filter: any) {
+  async deleteByCondition(filter: FilterQuery<T>) {
     return this.model.deleteMany(filter);
   }
 
-  async findByConditionAndUpdate(filter: any, update: any) {
-    return this.model.findOneAndUpdate(filter as FilterQuery<T>, update);
+  async findOneAndUpdate(filter: FilterQuery<T>, update: any) {
+    return this.model.findOneAndUpdate(filter as FilterQuery<T>, update, { upsert: true, new: true });
   }
 
   async updateMany(filter: FilterQuery<T>, update: any, option?: any | null): Promise<any> {
