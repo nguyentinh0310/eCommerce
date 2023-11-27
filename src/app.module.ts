@@ -7,6 +7,7 @@ import { env } from './config/environment';
 import { KeyTokenModule } from '@modules/key-token/key-token.module';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { ApiKeyModule } from '@modules/api-key/api-key.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     }),
     UsersModule,
     KeyTokenModule,
+    ApiKeyModule,
     AuthModule
   ],
   controllers: [AppController],
