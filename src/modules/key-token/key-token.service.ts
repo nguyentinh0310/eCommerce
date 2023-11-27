@@ -15,15 +15,7 @@ export class KeyTokenService {
   async createKeyToken(keyToken: IKeyToken) {
     try {
       const { userId, publicKey, privateKey, refreshToken } = keyToken;
-      /**
-      // C1: Lưu thẳng token vào db
-      const tokens = await this.keyTokenRepository.create({
-        user: userId,
-        publicKey,
-        privateKey
-      });
-    */
-      // C2
+      
       const tokens = await this.keyTokenRepository.findOneAndUpdate(
         { user: userId },
         {
@@ -43,7 +35,10 @@ export class KeyTokenService {
     return await this.keyTokenRepository.findByCondition({ user: userId });
   }
 
+  async findByRefreshToken(refreshToken: string) {
+    return await this.keyTokenRepository.findByCondition({ refreshToken });
+  }
   async removeKeyById(id: any) {
-    return await this.keyTokenRepository.deleteOne(id)
+    return await this.keyTokenRepository.deleteOne(id);
   }
 }

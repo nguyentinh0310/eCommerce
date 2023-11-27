@@ -7,12 +7,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Permissions } from 'decorators/permissions.decorator';
-import { PermisstionGuard } from 'guard/permission.guard';
+import { JwtAuthGuard } from 'guard/jwt-auth.guard';
+import { RequestWithUser } from 'types/auth.types';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
-import { RequestWithUser } from 'types/auth.types';
-import { JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiBearerAuth('defaultBearerAuth')
 @ApiTags('auth')
@@ -20,8 +18,6 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // @UseGuards(PermisstionGuard)
-  // @Permissions('0000')
   @Post('register')
   async register(@Body() userDto: RegisterDto): Promise<any> {
     return await this.authService.register(userDto);
@@ -38,5 +34,11 @@ export class AuthController {
   @HttpCode(200)
   async logout(@Request() req: RequestWithUser): Promise<any> {
     return await this.authService.logout(req.user.id);
+  }
+
+  @Post('refresh-token')
+  @HttpCode(200)
+  async handleRefreshToken(@Body('refreshToken') refreshToken: string): Promise<any> {
+    return await this.authService.handleRefreshToken(refreshToken);
   }
 }

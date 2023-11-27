@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -9,6 +9,7 @@ import { KeyTokenService } from '@modules/key-token/key-token.service';
 import { createTokenKeyPair } from '@utils/auth';
 import { getInfoData } from '@utils/common';
 import { ObjectId } from 'mongoose';
+import { env } from 'process';
 
 @Injectable()
 export class AuthService {
@@ -161,7 +162,80 @@ export class AuthService {
         meta: delKey,
       };
     } catch (error) {
-      console.error(error);
+      throw error;
+    }
+  }
+
+  async handleRefreshToken(refreshToken: string) {
+    try {
+      // Kiểm tra có phải user đó ko?
+      const decode = this.jwtService.verify(refreshToken, {
+        secret: env.SECRETKEY_REFRESH,
+      });
+      const userId = decode.userId
+      if (!userId)
+        throw new HttpException('Invalid UserId', HttpStatus.UNAUTHORIZED);
+      
+      // get keyStore
+        const keyStore = await this.keyTokenService.findByUserId(userId);
+      if (!keyStore)
+        throw new HttpException('Not found keyStore', HttpStatus.NOT_FOUND);
+
+
+      // Kiểm tra refresh token đã tồn tại
+      if (keyStore.refreshTokenUsed.includes(refreshToken)) {
+        // await this.keyTokenService.removeKeyById(keyStore._id);
+        throw new HttpException(
+          'Something wrong happen!! Please login',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
+      // Kiểm tra refresh token
+      if (keyStore.refreshToken !== refreshToken)
+        throw new HttpException(
+          'Incorrect refresh token',
+          HttpStatus.UNAUTHORIZED,
+        );
+
+      const foundShop = await this.userService.getByUserId(userId);
+      if (!foundShop)
+        throw new HttpException(
+          'Shop not registerted',
+          HttpStatus.UNAUTHORIZED,
+        );
+
+      // Tạo token mới
+      const tokens = await createTokenKeyPair(
+        { userId, email: foundShop.email },
+        this.jwtService,
+        keyStore.publicKey,
+        keyStore.privateKey,
+      );
+
+      // Cập nhật refresh token và thêm token cũ vào mảng refreshTokenUsed
+      await keyStore.updateOne({
+        $set: {
+          refreshToken: tokens.refreshToken,
+        },
+        $addToSet: {
+          refreshTokenUsed: refreshToken,
+        },
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'RefreshToken successfully!',
+        meta: {
+          user: foundShop,
+          tokens,
+        },
+      };
+    } catch (error) {
+      console.error(error)
+      if (error instanceof JsonWebTokenError) {
+        throw new HttpException('Invalid refreshToken', HttpStatus.UNAUTHORIZED);
+      }
       throw error;
     }
   }
