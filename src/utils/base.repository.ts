@@ -9,16 +9,16 @@ export class BaseRepository<T extends Document> {
   }
 
   async findById(id: string, option?: QueryOptions): Promise<T | null> {
-    const result = await this.model.findById(id, option);
+    const result = await this.model.findById(id, option).lean();
     return result !== null ? (result as T) : null;
   }
 
   async findByCondition(filter: FilterQuery<T>, field?: any | null, option?: QueryOptions | null, populate?: PopulateOptions | null): Promise<T | null> {
     const query = this.model.findOne(filter, field, option);
     if (populate) {
-      query.populate(populate);
+      query.populate(populate).lean();
     }
-    return query.exec();
+    return query.lean();
   }
 
   async getByCondition(
@@ -27,15 +27,15 @@ export class BaseRepository<T extends Document> {
     option?: any | null,
     populate?: any | null,
   ): Promise<T[]> {
-    return this.model.find(filter, field, option).populate(populate);
+    return this.model.find(filter, field, option).populate(populate).lean();
   }
 
   async findAll(): Promise<T[]> {
-    return this.model.find();
+    return this.model.find().lean();
   }
 
   async aggregate(option: any) {
-    return this.model.aggregate(option);
+    return this.model.aggregate(option).exec();
   }
 
   async populate(result: T[], option: any) {
@@ -55,7 +55,7 @@ export class BaseRepository<T extends Document> {
   }
 
   async findOneAndUpdate(filter: FilterQuery<T>, update: any) {
-    return this.model.findOneAndUpdate(filter as FilterQuery<T>, update, { upsert: true, new: true });
+    return this.model.findOneAndUpdate(filter as FilterQuery<T>, update, { upsert: true, new: true }).exec();
   }
 
   async updateMany(filter: FilterQuery<T>, update: any, option?: any | null): Promise<any> {
@@ -64,6 +64,6 @@ export class BaseRepository<T extends Document> {
   
 
   async findByIdAndUpdate(id: any, update: any) {
-    return this.model.findByIdAndUpdate(id, update);
+    return this.model.findByIdAndUpdate(id, update).exec();
   }
 }
