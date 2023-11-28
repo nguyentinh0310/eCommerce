@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'guard/jwt-auth.guard';
 import { RequestWithUser } from 'types/auth.types';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginDto, RefreshTokenDto, RegisterDto } from './dto/auth.dto';
 
 @ApiBearerAuth('defaultBearerAuth')
 @ApiTags('auth')
@@ -38,7 +38,7 @@ export class AuthController {
 
   @Post('refresh-token')
   @HttpCode(200)
-  async handleRefreshToken(@Body('refreshToken') refreshToken: string): Promise<any> {
+  async handleRefreshToken(@Body() { refreshToken }: RefreshTokenDto): Promise<any> {
     return await this.authService.handleRefreshToken(refreshToken);
   }
 }

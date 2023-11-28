@@ -227,7 +227,10 @@ export class AuthService {
         statusCode: HttpStatus.OK,
         message: 'RefreshToken successfully!',
         meta: {
-          user: foundShop,
+          user: getInfoData({
+            fileds: ['_id', 'name', 'email'],
+            object: foundShop,
+          }),
           tokens,
         },
       };
