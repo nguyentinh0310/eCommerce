@@ -29,7 +29,7 @@ export class ErrorFilter implements ExceptionFilter {
       stack: (exception as any).stack, // Type assertion here
     } as ErrorResponse;
 
-    if (process.env.NODE_ENV !== 'development') {
+    if (process.env.NODE_ENV === 'production') {
       delete responseError.stack;
     }
 

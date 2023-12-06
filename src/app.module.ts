@@ -10,6 +10,7 @@ import { ApiKeyAuthGuard } from 'guard/api-key.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { env } from './config/environment';
+import { ProductsModule } from '@modules/products/products.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { env } from './config/environment';
     KeyTokenModule,
     ApiKeyModule,
     AuthModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [
