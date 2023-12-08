@@ -34,6 +34,11 @@ export class BaseRepository<T extends Document> {
     return this.model.find().lean();
   }
 
+  async count(filter: FilterQuery<T> = {}): Promise<number> {
+      const count = await this.model.countDocuments(filter).exec();
+      return count;
+  }
+
   async aggregate(option: any) {
     return this.model.aggregate(option).exec();
   }
@@ -64,6 +69,6 @@ export class BaseRepository<T extends Document> {
   
 
   async findByIdAndUpdate(id: any, update: any) {
-    return this.model.findByIdAndUpdate(id, update).exec();
+    return this.model.findByIdAndUpdate(id, update, { upsert: true, new: true }).exec();
   }
 }

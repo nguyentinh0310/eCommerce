@@ -14,7 +14,9 @@
       "@modules/*": ["modules/*"],
       "@config/*": ["config/*"],
       "@enums/*": ["enums/*"],
+      "@decorators/*": ["decorators/*"],
       "@filters/*": ["filters/*"],
+      "@guard/*": ["guard/*"],
       "@middlewares/*": ["middlewares/*"],
       "@utils/*": ["utils/*"]
     },
