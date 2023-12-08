@@ -1,32 +1,44 @@
+import { updateNestedObjectParser } from './../../utils/common';
 import {
   ClothingRepository,
   ElectronicRepository,
   FurnitureRepository,
+  IProductShop,
   ProductsRepository,
 } from './products.repository';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { ObjectId } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import slugify from 'slugify';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { removeUnderfinedObject } from '@utils/common';
 
-// Định nghĩa product factory
+// Áp dụng Factory Parttern cho ProductsService
 @Injectable()
 export class ProductsService {
+  private readonly repositories: Record<string, any>;
   constructor(
     private readonly productsRepository: ProductsRepository,
     private readonly clothingRepository: ClothingRepository,
     private readonly electronicRepository: ElectronicRepository,
     private readonly furnitureRepository: FurnitureRepository,
-  ) {}
+  ) {
+    // Khởi tạo đối tượng repositories với các repository tương ứng
+    this.repositories = {
+      Clothing: this.clothingRepository,
+      Electronics: this.electronicRepository,
+      Furniture: this.furnitureRepository,
+    };
+  }
 
   static productRegistry: Map<string, any> = new Map(); // key-class
 
-  // tạo hàm static để đăng ký type
+  // Phương thức static để đăng ký loại sản phẩm và lớp tương ứng
   static registerProductType(type: string, classRef: any) {
     ProductsService.productRegistry.set(type, classRef);
   }
 
-  // áp dụng Strategy Parttern
+  // Áp dụng Strategy Parttern
   async createProduct(type: string, payload: any) {
     try {
       const productClass = ProductsService.productRegistry.get(type);
@@ -36,10 +48,9 @@ export class ProductsService {
           HttpStatus.BAD_REQUEST,
         );
 
-      const relevantRepository = this.getRelevantRepository(type);
       const productInstance = new productClass(
         this.productsRepository,
-        relevantRepository,
+        this.repositories[type],
       );
 
       return productInstance.createProduct(payload);
@@ -47,21 +58,86 @@ export class ProductsService {
       throw error;
     }
   }
-  // TODO: Fix
-  private getRelevantRepository(type: string) {
-    switch (type) {
-      case 'Clothing':
-        return this.clothingRepository;
-      case 'Electronics':
-        return this.electronicRepository;
-      case 'Furniture':
-        return this.furnitureRepository;
-      default:
+
+  // Áp dụng Strategy Parttern
+  async updateProduct(type: string, producId: Types.ObjectId, payload: any) {
+    try {
+      const productClass = ProductsService.productRegistry.get(type);
+      if (!productClass)
         throw new HttpException(
           `Invalid Product type: ${type}`,
           HttpStatus.BAD_REQUEST,
         );
+
+      const productInstance = new productClass(
+        this.productsRepository,
+        this.repositories[type],
+      );
+
+      return productInstance.updateProduct(producId, payload);
+    } catch (error) {
+      throw error;
     }
+  }
+
+  async findAllPublishForShop({ shop, limit = 50, skip = 0 }: any) {
+    const query = { shop, isPublished: true };
+    return await this.productsRepository.findAllPublish({ query, limit, skip });
+  }
+
+  async findAllDraftForShop({ shop, limit = 50, skip = 0 }: any) {
+    const query = { shop, isDraft: true };
+    return await this.productsRepository.findAllDraft({ query, limit, skip });
+  }
+
+  async publishProductByShop({ shopId, productId }: IProductShop) {
+    return await this.productsRepository.publishProduct({
+      shopId,
+      productId,
+    });
+  }
+
+  async unPublishProductByShop({ shopId, productId }: IProductShop) {
+    return await this.productsRepository.unPublishProduct({
+      shopId,
+      productId,
+    });
+  }
+
+  async searchProduct(query: string) {
+    return await this.productsRepository.searchProduct(query);
+  }
+
+  async findAllProduct({
+    limit = 50,
+    sort = 'ctime',
+    page = 1,
+    filter = { isPublished: true },
+  }) {
+    const products = await this.productsRepository.findAllProduct({
+      limit,
+      sort,
+      page,
+      filter,
+      select: ['name', 'description', 'price', 'quantity', 'thumbnail'],
+    });
+
+    const totalRows = await this.productsRepository.count();
+    return {
+      products,
+      pagination: {
+        page,
+        limit,
+        totalRows,
+      },
+    };
+  }
+
+  async findProduct({ productId }: { productId: Types.ObjectId }) {
+    return await this.productsRepository.findProduct({
+      productId,
+      unSelect: ['__v'],
+    });
   }
 }
 
@@ -75,9 +151,20 @@ class Products {
       _id: shopId,
     });
   }
+
+  async updateProduct(
+    productId: ObjectId,
+    updadteProductDto: UpdateProductDto,
+  ) {
+    const { name } = updadteProductDto;
+    return await this.productRepository.findByIdAndUpdate(productId, {
+      ...updadteProductDto,
+      slug: slugify(name!.toLowerCase()),
+    });
+  }
 }
 
-// Định nghĩa sub-class khác với product
+// Định nghĩa sub-class
 class Clothings extends Products {
   constructor(
     productRepository: ProductsRepository,
@@ -106,6 +193,22 @@ class Clothings extends Products {
     if (!newProduct)
       throw new HttpException('Create product error', HttpStatus.BAD_REQUEST);
     return newProduct;
+  }
+
+  async updateProduct(productId: ObjectId, productDto: UpdateProductDto) {
+    // Xóa attribute giá trị là null, underfined
+    const objectParams = removeUnderfinedObject(productDto);
+    // update class con Clothing
+    if (objectParams.attributes) {
+      await this.clothingRepository.findByIdAndUpdate(
+        productId,
+        updateNestedObjectParser(objectParams.attributes),
+      );
+    }
+
+    // update cả product
+    const updateProduct = await super.updateProduct(productId, updateNestedObjectParser(objectParams));
+    return updateProduct;
   }
 }
 
@@ -173,4 +276,4 @@ class Furnitures extends Products {
 
 ProductsService.registerProductType('Clothing', Clothings);
 ProductsService.registerProductType('Electronics', Electronics);
-ProductsService.registerProductType('Furnitures', Furnitures);
+ProductsService.registerProductType('Furniture', Furnitures);
