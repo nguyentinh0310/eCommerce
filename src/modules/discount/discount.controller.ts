@@ -16,7 +16,6 @@ export class DiscountController {
   @Post()
   @UseGuards(JwtAuthGuard)
   async createDiscountCode(@Request() req: RequestWithUser, @Body() discountDto: any) {
-    console.log("🚀 ~ DiscountController ~ createDiscountCode ~ discountDto:", discountDto)
     const discountCode = await this.discountService.createDiscountCode({
       ...discountDto,
       shopId: req.user._id,
