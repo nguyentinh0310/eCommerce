@@ -16,3 +16,12 @@ export interface ListParams {
 
   [key: string]: any;
 }
+
+export interface ISelectData {
+  limit: number;
+  sort: string;
+  page: number;
+  filter: any;
+  select?: any;
+  unSelect?: any;
+}

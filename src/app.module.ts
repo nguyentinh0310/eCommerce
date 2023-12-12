@@ -6,11 +6,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ApiKeyAuthGuard } from 'guard/api-key.guard';
+import { ApiKeyAuthGuard } from '@guard/api-key.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { env } from './config/environment';
 import { ProductsModule } from '@modules/products/products.module';
+import { DiscountModule } from '@modules/discount/discount.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ProductsModule } from '@modules/products/products.module';
     ApiKeyModule,
     AuthModule,
     ProductsModule,
+    DiscountModule,
   ],
   controllers: [AppController],
   providers: [
