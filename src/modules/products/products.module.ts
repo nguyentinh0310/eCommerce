@@ -16,5 +16,6 @@ import { ClothingRepository, ElectronicRepository, FurnitureRepository, Products
   ],
   controllers: [ProductsController],
   providers: [ProductsService, ProductsRepository, ClothingRepository, ElectronicRepository, FurnitureRepository],
+  exports: [ProductsService]
 })
 export class ProductsModule {}

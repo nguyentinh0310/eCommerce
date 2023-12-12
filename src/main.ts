@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import * as exitHook from 'async-exit-hook';
+import * as mongoose from 'mongoose';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -54,8 +55,9 @@ async function bootstrap() {
   });
 
   // Thực hiện tác vụ cleanup trước khi dừng server
-  exitHook(() => {
+  exitHook(async () => {
     console.log('Disconnection from MongoDB Cloud Atlas');
+    await mongoose.disconnect()
   });
 }
 

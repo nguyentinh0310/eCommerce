@@ -102,7 +102,7 @@ export class Clothing {
     @Prop()
     material: string
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'shop' })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
     shop: MongooseSchema.Types.ObjectId
 
     @Prop({ default: Date.now })
@@ -133,7 +133,7 @@ export class Electronic {
     @Prop()
     color: string
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'shop' })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
     shop: MongooseSchema.Types.ObjectId
 
     @Prop({ default: Date.now })
@@ -164,7 +164,7 @@ export class Furniture {
     @Prop()
     material: string
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'shop' })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
     shop: MongooseSchema.Types.ObjectId
 
     @Prop({ default: Date.now })

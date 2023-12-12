@@ -1,17 +1,12 @@
-import { updateNestedObjectParser } from './../../utils/common';
-import {
-  ClothingRepository,
-  ElectronicRepository,
-  FurnitureRepository,
-  IProductShop,
-  ProductsRepository,
-} from './products.repository';
+import { ClothingRepository, ElectronicRepository, FurnitureRepository, IProductShop, ProductsRepository } from './products.repository';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ObjectId, Types } from 'mongoose';
 import slugify from 'slugify';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { removeUnderfinedObject } from '@utils/common';
+import { removeUnderfinedObject, updateNestedObjectParser } from '@utils/common';
+import { Product } from './products.model';
+import { ListResponse } from 'types/common';
 
 // Áp dụng Factory Parttern cho ProductsService
 @Injectable()
@@ -39,7 +34,7 @@ export class ProductsService {
   }
 
   // Áp dụng Strategy Parttern
-  async createProduct(type: string, payload: any) {
+  async createProduct(type: string, payload: any): Promise<Product> {
     try {
       const productClass = ProductsService.productRegistry.get(type);
       if (!productClass)
@@ -60,7 +55,7 @@ export class ProductsService {
   }
 
   // Áp dụng Strategy Parttern
-  async updateProduct(type: string, producId: Types.ObjectId, payload: any) {
+  async updateProduct(type: string, producId: Types.ObjectId, payload: any): Promise<any> {
     try {
       const productClass = ProductsService.productRegistry.get(type);
       if (!productClass)
@@ -80,60 +75,55 @@ export class ProductsService {
     }
   }
 
-  async findAllPublishForShop({ shop, limit = 50, skip = 0 }: any) {
+  async findAllPublishForShop({ shop, limit = 50, skip = 0 }: any): Promise<Product[]>  {
     const query = { shop, isPublished: true };
     return await this.productsRepository.findAllPublish({ query, limit, skip });
   }
 
-  async findAllDraftForShop({ shop, limit = 50, skip = 0 }: any) {
+  async findAllDraftForShop({ shop, limit = 50, skip = 0 }: any): Promise<Product[]>  {
     const query = { shop, isDraft: true };
     return await this.productsRepository.findAllDraft({ query, limit, skip });
   }
 
-  async publishProductByShop({ shopId, productId }: IProductShop) {
+  async publishProductByShop({ shopId, productId }: IProductShop): Promise<any> {
     return await this.productsRepository.publishProduct({
       shopId,
       productId,
     });
   }
 
-  async unPublishProductByShop({ shopId, productId }: IProductShop) {
+  async unPublishProductByShop({ shopId, productId }: IProductShop): Promise<any> {
     return await this.productsRepository.unPublishProduct({
       shopId,
       productId,
     });
   }
 
-  async searchProduct(query: string) {
+  async searchProduct(query: string): Promise<Product[]> {
     return await this.productsRepository.searchProduct(query);
   }
 
-  async findAllProduct({
-    limit = 50,
-    sort = 'ctime',
-    page = 1,
-    filter = { isPublished: true },
-  }) {
+  async findAllProduct({ limit = 50, sort = 'ctime', page = 1, filter = { isPublished: true } }): Promise<ListResponse<Product>> {
     const products = await this.productsRepository.findAllProduct({
       limit,
       sort,
       page,
       filter,
-      select: ['name', 'description', 'price', 'quantity', 'thumbnail'],
+      select: ['name', "slug", 'description', 'price', 'quantity', 'thumbnail', "type", "shop", "attributes", "variations"],
     });
 
     const totalRows = await this.productsRepository.count();
     return {
-      products,
+      data: products,
       pagination: {
-        page,
-        limit,
+        page: +page,
+        limit: +limit,
         totalRows,
       },
     };
   }
 
-  async findProduct({ productId }: { productId: Types.ObjectId }) {
+  async findProduct({ productId }: { productId: Types.ObjectId }): Promise<any> {
     return await this.productsRepository.findProduct({
       productId,
       unSelect: ['__v'],
@@ -173,7 +163,7 @@ class Clothings extends Products {
     super(productRepository);
   }
 
-  async createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
     const newClothing = await this.clothingRepository.create({
       ...createProductDto.attributes,
     });
@@ -195,7 +185,7 @@ class Clothings extends Products {
     return newProduct;
   }
 
-  async updateProduct(productId: ObjectId, productDto: UpdateProductDto) {
+  async updateProduct(productId: ObjectId, productDto: UpdateProductDto): Promise<any> {
     // Xóa attribute giá trị là null, underfined
     const objectParams = removeUnderfinedObject(productDto);
     // update class con Clothing
@@ -241,6 +231,22 @@ class Electronics extends Products {
       throw new HttpException('Create product error', HttpStatus.BAD_REQUEST);
     return newProduct;
   }
+
+  async updateProduct(productId: ObjectId, productDto: UpdateProductDto): Promise<any> {
+    // Xóa attribute giá trị là null, underfined
+    const objectParams = removeUnderfinedObject(productDto);
+    // update class con Clothing
+    if (objectParams.attributes) {
+      await this.electronicRepository.findByIdAndUpdate(
+        productId,
+        updateNestedObjectParser(objectParams.attributes),
+      );
+    }
+
+    // update cả product
+    const updateProduct = await super.updateProduct(productId, updateNestedObjectParser(objectParams));
+    return updateProduct;
+  }
 }
 
 class Furnitures extends Products {
@@ -272,8 +278,24 @@ class Furnitures extends Products {
       throw new HttpException('Create product error', HttpStatus.BAD_REQUEST);
     return newProduct;
   }
+  async updateProduct(productId: ObjectId, productDto: UpdateProductDto): Promise<any> {
+    // Xóa attribute giá trị là null, underfined
+    const objectParams = removeUnderfinedObject(productDto)
+    // update class con Furniture
+    if(objectParams.attributes){
+      await this.furnitureRepository.findByIdAndUpdate(
+        productId,
+        updateNestedObjectParser(objectParams.attributes),
+      );
+    }
+
+    const updateProduct = super.updateProduct(productId, updateNestedObjectParser(objectParams))
+    return updateProduct
+  }
+
 }
 
+// Đăng ký theo từng lại sản phẩm
 ProductsService.registerProductType('Clothing', Clothings);
 ProductsService.registerProductType('Electronics', Electronics);
 ProductsService.registerProductType('Furniture', Furnitures);

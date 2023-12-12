@@ -1,13 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Clothing,
-  ClothingDocument,
-  Electronic,
-  ElectronicDocument,
-  Furniture,
-  FurnitureDocument,
-  Product,
-  ProductDocument,
+import { Clothing, ClothingDocument, Electronic, ElectronicDocument, Furniture, FurnitureDocument, Product, ProductDocument,
 } from './products.model';
 import { BaseRepository } from '@utils/base.repository';
 import { InjectModel } from '@nestjs/mongoose';
