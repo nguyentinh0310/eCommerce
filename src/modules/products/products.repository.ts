@@ -5,6 +5,7 @@ import { BaseRepository } from '@utils/base.repository';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, Types } from 'mongoose';
 import { getSelectData, unGetSelectData } from '@utils/common';
+import { ISelectData } from 'types/common';
 
 interface IQueryProduct {
   query: any;
@@ -15,14 +16,6 @@ interface IQueryProduct {
 export interface IProductShop {
   shopId: Types.ObjectId;
   productId: Types.ObjectId;
-}
-
-export interface ISelectData {
-  limit: number;
-  sort: string;
-  page: number;
-  filter: any;
-  select: any;
 }
 
 @Injectable()

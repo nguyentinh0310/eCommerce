@@ -51,6 +51,10 @@ export class BaseRepository<T extends Document> {
     return this.model.deleteOne({ _id: id } as FilterQuery<T>);
   }
 
+  async findOneAndDelete(filter: FilterQuery<T>): Promise<T | null> {
+    return await this.model.findOneAndDelete(filter).exec();
+  }
+
   async deleteMany(id: string[]) {
     return this.model.deleteMany({ _id: { $in: id } } as FilterQuery<T>);
   }

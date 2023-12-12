@@ -15,7 +15,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post('create')
+  @Post()
   @UseGuards(JwtAuthGuard)
   async createProduct(@Request() req: RequestWithUser, @Body() productDto: CreateProductDto) {
     const product = await this.productsService.createProduct(productDto.type, {
@@ -29,7 +29,7 @@ export class ProductsController {
     }
   }
 
-  @Patch('edit/:producId')
+  @Patch('/:producId')
   @UseGuards(JwtAuthGuard)
   async updateProduct(@Request() req: RequestWithUser, @Param('producId') producId: Types.ObjectId, @Body() productDto: UpdateProductDto) {
     const product = await this.productsService.updateProduct(productDto.type!, producId, {
