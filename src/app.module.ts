@@ -12,6 +12,7 @@ import { AppService } from './app.service';
 import { env } from './config/environment';
 import { ProductsModule } from '@modules/products/products.module';
 import { DiscountModule } from '@modules/discount/discount.module';
+import { CartModule } from '@modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { DiscountModule } from '@modules/discount/discount.module';
     AuthModule,
     ProductsModule,
     DiscountModule,
+    CartModule
   ],
   controllers: [AppController],
   providers: [

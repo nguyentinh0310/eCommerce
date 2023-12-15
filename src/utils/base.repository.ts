@@ -34,6 +34,10 @@ export class BaseRepository<T extends Document> {
     return this.model.find().lean();
   }
 
+  async find(filter: FilterQuery<T>): Promise<T[]> {
+    return this.model.find(filter).lean();
+  }
+
   async count(filter: FilterQuery<T> = {}): Promise<number> {
       const count = await this.model.countDocuments(filter).exec();
       return count;
@@ -71,7 +75,6 @@ export class BaseRepository<T extends Document> {
     return this.model.updateMany(filter, update, option).exec();
   }
   
-
   async findByIdAndUpdate(id: any, update: any) {
     return this.model.findByIdAndUpdate(id, update, { upsert: true, new: true }).exec();
   }
