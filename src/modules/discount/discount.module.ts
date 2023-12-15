@@ -7,8 +7,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Discount, DiscountSchema } from './discount.model';
 
 @Module({
-  imports: [ProductsModule,
-    MongooseModule.forFeature([{ name: Discount.name, schema: DiscountSchema }])],
+  imports: [
+    ProductsModule,
+    MongooseModule.forFeature([{ name: Discount.name, schema: DiscountSchema }]),
+  ],
   controllers: [DiscountController],
   providers: [DiscountService, DiscountRepository],
 })

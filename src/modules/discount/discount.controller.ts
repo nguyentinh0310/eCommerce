@@ -15,7 +15,7 @@ export class DiscountController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async createDiscountCode(@Request() req: RequestWithUser, @Body() discountDto: any) {
+  async createDiscountCode(@Request() req: RequestWithUser, @Body() discountDto: CreateDiscountDto) {
     const discountCode = await this.discountService.createDiscountCode({
       ...discountDto,
       shopId: req.user._id,
@@ -23,7 +23,7 @@ export class DiscountController {
     return {
       statusCode: HttpStatus.CREATED,
       message: "Create discount code successfully",
-      meta: discountCode
+      metaData: discountCode
     }
   }
 
@@ -37,7 +37,7 @@ export class DiscountController {
     return {
       statusCode: HttpStatus.OK,
       message: "Update discount code successfully",
-      meta: discountCode
+      metaData: discountCode
     }
   }
 
@@ -48,7 +48,7 @@ export class DiscountController {
     return {
       statusCode: HttpStatus.OK,
       message: "Get all discount code successfully",
-      meta: discountCodes
+      metaData: discountCodes
     }
   }
 
@@ -59,7 +59,7 @@ export class DiscountController {
     return {
       statusCode: HttpStatus.OK,
       message: "Get all discount code successfully",
-      meta: discountCodes
+      metaData: discountCodes
     }
   }
 
@@ -70,18 +70,18 @@ export class DiscountController {
     return {
       statusCode: HttpStatus.OK,
       message: "Get all discount amount successfully",
-      meta: discount
+      metaData: discount
     }
   }
 
   @Delete(':shopId/:code')
   @UseGuards(JwtAuthGuard)
-  async deleteDiscountCode(@Param('shopId') shopId: string, @Param('code') code: string,) {
+  async deleteDiscountCode(@Param('shopId') shopId: string, @Param('code') code: string) {
     const deletedDiscount = await this.discountService.deleteDiscountCode({ shopId, code });
     return {
       statusCode: HttpStatus.OK,
       message: "Delete discount code successfully",
-      meta: deletedDiscount
+      metaData: deletedDiscount
     }
   }
 
@@ -92,7 +92,7 @@ export class DiscountController {
     return {
       statusCode: HttpStatus.OK,
       message: "Update discount code successfully",
-      meta: deletedDiscount
+      metaData: deletedDiscount
     }
   }
 }
