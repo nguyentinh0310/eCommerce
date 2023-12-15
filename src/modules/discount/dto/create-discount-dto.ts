@@ -58,7 +58,6 @@ export class CreateDiscountDto {
   uses_count: number;
 
   @ApiProperty()
-  @IsNotEmpty()
   uses_used: any[];
 
   @ApiProperty()
@@ -70,7 +69,6 @@ export class CreateDiscountDto {
   min_order_value: number;
 
   @ApiProperty()
-  @IsNotEmpty()
   shopId: string;
 
   @ApiProperty()
