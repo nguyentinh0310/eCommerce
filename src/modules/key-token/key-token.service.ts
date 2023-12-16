@@ -32,11 +32,11 @@ export class KeyTokenService {
   }
 
   async findByUserId(userId: ObjectId) {
-    return await this.keyTokenRepository.findByCondition({ user: userId });
+    return await this.keyTokenRepository.findOne({ user: userId });
   }
 
   async findByRefreshToken(refreshToken: string) {
-    return await this.keyTokenRepository.findByCondition({ refreshToken });
+    return await this.keyTokenRepository.findOne({ refreshToken });
   }
   async removeKeyById(id: any) {
     return await this.keyTokenRepository.deleteOne(id);

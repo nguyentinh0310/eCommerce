@@ -14,11 +14,11 @@ export class UsersService {
   }
 
   async getByEmail(email: string) {
-    return await this.userRepository.findByCondition({ email });
+    return await this.userRepository.findOne({ email });
   }
 
   async getByUserId(userId: ObjectId) {
-    const user = await this.userRepository.findByCondition({ _id: userId });
+    const user = await this.userRepository.findOne({ _id: userId });
     if (!user)
       throw new HttpException('User does not found', HttpStatus.BAD_REQUEST);
     return user

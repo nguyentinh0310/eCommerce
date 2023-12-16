@@ -29,7 +29,7 @@ export class DiscountService {
     if (new Date(payload.start_date) > new Date(payload.end_date))
       throw new HttpException('Start date must less than End date', HttpStatus.BAD_REQUEST);
     // Tìm kiếm discount tồn tại và is_active: true --> Discount exist
-    const discount = await this.discountRepository.findByCondition({
+    const discount = await this.discountRepository.findOne({
       code: payload.code,
       shopId: new Types.ObjectId(payload.shopId)
     })
@@ -69,7 +69,7 @@ export class DiscountService {
     const { code, shopId, limit, page } = payload
 
     // kiểm tra discount tồn tại .findOne({ code, shopId })
-    const discount = await this.discountRepository.findByCondition({ 
+    const discount = await this.discountRepository.findOne({ 
       code, 
       shopId: new Types.ObjectId(payload.shopId)
     })
@@ -126,7 +126,7 @@ export class DiscountService {
   async getDiscountAmount(payload: any) {
     const  { codeId, shopId, userId, products } = payload
     // kiểm tra discount tồn tại
-    const discount = await this.discountRepository.findByCondition({
+    const discount = await this.discountRepository.findOne({
       code: codeId,
       shopId: new Types.ObjectId(shopId)
     })
@@ -175,7 +175,7 @@ export class DiscountService {
   }
 
   async cancelDiscountCode({ shopId, code }: any): Promise<any> {
-    const discount = await this.discountRepository.findByCondition({
+    const discount = await this.discountRepository.findOne({
       code,
       shopId: new Types.ObjectId(shopId)
     })

@@ -13,7 +13,7 @@ export class BaseRepository<T extends Document> {
     return result !== null ? (result as T) : null;
   }
 
-  async findByCondition(filter: FilterQuery<T>, field?: any | null, option?: QueryOptions | null, populate?: PopulateOptions | null): Promise<T | null> {
+  async findOne(filter: FilterQuery<T>, field?: any | null, option?: QueryOptions | null, populate?: PopulateOptions | null): Promise<T | null> {
     const query = this.model.findOne(filter, field, option);
     if (populate) {
       query.populate(populate).lean();
@@ -21,21 +21,12 @@ export class BaseRepository<T extends Document> {
     return query.lean();
   }
 
-  async getByCondition(
-    filter: any,
-    field?: any | null,
-    option?: any | null,
-    populate?: any | null,
-  ): Promise<T[]> {
+  async find(filter: FilterQuery<T>, field?: any | null, option?: any | null, populate?: any | null): Promise<T[]> {
     return this.model.find(filter, field, option).populate(populate).lean();
   }
 
   async findAll(): Promise<T[]> {
     return this.model.find().lean();
-  }
-
-  async find(filter: FilterQuery<T>): Promise<T[]> {
-    return this.model.find(filter).lean();
   }
 
   async count(filter: FilterQuery<T> = {}): Promise<number> {
