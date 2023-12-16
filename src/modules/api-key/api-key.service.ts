@@ -11,7 +11,7 @@ export class ApiKeyService {
       permissions: ['0000'],
     });
     console.log(newKey);
-    const objKey = await this.apiKeyRepository.findByCondition({ key, status: true });
+    const objKey = await this.apiKeyRepository.findOne({ key, status: true });
     // Nếu không tìm thấy khóa hoặc trạng thái không hợp lệ, trả về false
     if (!objKey || !objKey.status) {
       return false;
@@ -20,7 +20,7 @@ export class ApiKeyService {
     return true;
   }
   async hasPermissions(key: string, permissions: string[]): Promise<boolean> {
-    const objKey = await this.apiKeyRepository.findByCondition({ key, status: true });
+    const objKey = await this.apiKeyRepository.findOne({ key, status: true });
     if(!objKey) {
       return false
     }

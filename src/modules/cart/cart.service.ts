@@ -22,8 +22,8 @@ export class CartService {
 
   async addToCart({ userId, product }: CreateCartDto) {
     // kiểm tra cart có tồn tại hay ko?
-    const cart = await this.cartRepository.findByCondition({ userId })
-    const productItem = await this.productsRepository.findByCondition({ _id: product.productId })
+    const cart = await this.cartRepository.findOne({ userId })
+    const productItem = await this.productsRepository.findOne({ _id: product.productId })
     if(!productItem) throw new NotFoundException(`Product not found`);
 
     // Thêm thông tin name và price từ productItem vào product
@@ -67,7 +67,7 @@ export class CartService {
     let totalQuantityChange = 0;
 
     // kiểm tra cart có tồn tại hay ko?
-    const cart = await this.cartRepository.findByCondition({ userId })
+    const cart = await this.cartRepository.findOne({ userId })
     if(!cart) throw new NotFoundException("Cart not found")
     if(!Array.isArray(shop_order_ids)) throw new HttpException('Invalid shopOrder', HttpStatus.BAD_REQUEST)
 
@@ -132,6 +132,6 @@ export class CartService {
   }
 
   async getListCartUser(userId: Types.ObjectId): Promise<any> {
-    return await this.cartRepository.findByCondition(userId)
+    return await this.cartRepository.findOne(userId)
   }
 }
