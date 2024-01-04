@@ -7,6 +7,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { removeUnderfinedObject, updateNestedObjectParser } from '@utils/common';
 import { Product } from './products.model';
 import { ListResponse } from 'types/common';
+import { InventoryRepository } from '@modules/inventory/inventory.repository';
+import { InventoryService } from '@modules/inventory/inventory.service';
 
 // Áp dụng Factory Parttern cho ProductsService
 @Injectable()
@@ -132,14 +134,27 @@ export class ProductsService {
 }
 
 class Products {
-  constructor(private readonly productRepository: ProductsRepository) {}
+  constructor(
+    private readonly productRepository: ProductsRepository,
+    private readonly inventoryService?: InventoryService
+  ) {}
   // _id của product nhận theo Clothings, Electronics, Furniture
   async createProduct(createProductDto: CreateProductDto, shopId: ObjectId) {
-    return await this.productRepository.create({
+    const newProduct = await this.productRepository.create({
       ...createProductDto,
       slug: slugify(createProductDto.name.toLowerCase()),
       _id: shopId,
     });
+
+    if(newProduct) {
+      await this.inventoryService!.insertInventory({
+        productId: newProduct._id,
+        shopId: createProductDto.shop,
+        stock: createProductDto.quantity
+      })
+    }
+
+    return newProduct
   }
 
   async updateProduct(
