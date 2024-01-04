@@ -4,9 +4,11 @@ import { ProductsController } from './products.controller';
 import { Clothing, ClothingSchema, Electronic, ElectronicSchema, Furniture, FurnitureSchema, Product, ProductSchema } from './products.model';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClothingRepository, ElectronicRepository, FurnitureRepository, ProductsRepository } from './products.repository';
+import { InventoryModule } from '@modules/inventory/inventory.module';
 
 @Module({
   imports: [
+    InventoryModule,
     MongooseModule.forFeature([
       { name: Product.name, schema: ProductSchema },
       { name: Clothing.name, schema: ClothingSchema },
